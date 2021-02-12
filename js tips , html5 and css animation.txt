@@ -1,0 +1,161 @@
+create an index.html file, 
+link to your style.css in the head tag
+link to your main.js in the body tag
+create a div with an h1 tag <h1> hi i'm kano the <span></span></h1>
+<h2>Welcome to my website</h2>
+
+let this tag have a span with class=txt-type like so;
+
+<span class="txt-type" data-wait="3000" data-words='["Developer","Writer","Animator"]'></span> 
+
+in html5 we can add custom attributes as long as we;
+ write them in the format attribute-custom_name 
+we can access these in our javascript.
+-the wait is in milli seconds which is just simply 3 minutes, this will be the 
+time it will take to type out a word and wait before it can type another word
+
+the other custom attribute is the data-words
+we used single quotes here because we passed in an argument as an array
+
+in html there is no such thing as an array , it'll just loop through that as a string
+but in our javascript when wwe fetch this information, we'll parse it using JSON.parse which we'll 
+treat it as an object, an Array 
+if you want to use google fonts in your style.css you can 
+import it like so:
+@import url('https:blah/blah')
+
+body{
+font-family: blah;
+height:100vh; //this is body height, it will take up the whole thing, no matter how big or small browser size 
+background: bg-color url(bg-image if u want) no-repeat center center / cover //the two centers will ensure the image is centered on both the x and y-axis
+color: blue; this is what will change the text color on your page
+overflow:hidden; this will remove the scroll bars ,only do this if you don't have more content on your page, }
+
+.container{
+display:flex; //when you do this, it'll display in a horixontal fasion, so fix that 
+fles-direction:column;
+justify-content:center; 
+height:100%;
+padding: 0(for the top and bottom) 3rem;
+
+} the container is the class on the div tag in our html
+
+h1, h2{
+font-weight:200;
+margin:0.4rem;}
+
+h1{
+font-size: 3.5rem;}
+h2{
+font-size: 2rem}
+put colors on these if you want
+
+add media queries
+
+@media(min-width: 1200px){
+//this will be for any browser window size over 1200px
+if a browser hit that we want our h1 to be bigger
+h1{font-size: 5rem;
+}
+}
+
+@media(min-width: 800px){
+.container{
+padding:0 1rem }
+h1{font-size: 3rem;
+}
+
+@media(min-width:500px){
+h1{
+font-size:2.5rem;
+}
+
+
+back to javascript
+we'll use a constructor function with a method called type
+ that will basically do everything for us\
+
+const TypeWriter = function(txtElement, words(from the data-words attribute, which is responsible for the words beig typed out ), wait(the time it waits before it starts deleting)=3000 default value until we change it later){
+
+//when we have a constructor function we can assign properties using the 'this' key word
+this.txtElement = txtElement;
+this.words = words;
+this.txt = ''; txt represents the characters in each
+ word inside the Array,
+this.wordIndex = 0;
+this.wait = parseInt(wait,10); parseInt() is there to help us
+           ensure that it is an integer, the second parameter shows us
+           the base of the number that we're dealing with
+
+this.type(); this is the main method that is associated with
+             this TypeWritter function that does everything
+this.isDeleting = false; which will be true if the fuction 
+                  is deleting, it will monitor the state
+}
+
+//type method
+the way we add a method to our typeWriter is by using a Prototype
+TypeWriter.prototype.type = function(){
+console.log('hello') //this will print out hello every 500ms if the function is working , for testing only
+//current index of word
+const currentIndex = this.wordIndex % this.words.length to get the total length of the words array
+console.log(currentIndex) we'll get 0 over and over
+
+//get the full text of current word
+const fullTxt= this.words(currentIndex) this will give us the word at index 0 over and over
+// we can also check to see if it's in the deleting state or not
+
+//check if deleting
+if(this.isDeleting){
+//remove a character 
+this.txt = fullTxt.substring(0,this.txt.length - 1);
+}else{
+//add a Character
+//this.txt represents whatever in the span 
+this.txt = fullTxt.substring(0,this.txt.length + 1);
+}
+//insert txt into element (span element)
+txtElement.innerHTML = '<span class="txt">${this.txt}</span>'; @ this point it should atleast be able to spell out the first word in our span,
+we need to add more logic to tell it what to delete 
+//Type Speed
+this will be dynamic, it'll delete faster, type slower and wait when it gets to the end, so we'll use let
+
+let typeSpeed = 300;
+if(this.isDeleting){
+typeSpeed /= 2 this is like saying typeSpeed = typeSpeed/ 2
+}
+// next we have to check if the fulltxt has been typed correctly, we can do that by matching it with whatever is in this.txt
+//if word is complete
+//'not' is written as (!) in javascript
+if(!this.isDeleting && this.txt === fullTxt){// this means at the point when we have deleted the word what do we want to do , we want to change the word
+//make a pause at end
+typeSpeed = this.wait;
+//set delete to true
+this.isDeleting = true;}
+else if(this.isDeleting && this.txt === ''){
+this.isDeleting = false;
+//move to the next word
+this.wordIndex++; // were just incrementing it by 1, hence the ++
+//pause a bit before typing again
+typeSpeed = 500;
+
+setTimeout(() => this.type, typeSpeed) each time a character is typed out or deleted , this is running, so this is where we set the pace
+it takes two parameters the function running(type in our case) and also how often it runs(500ms ),  }
+
+//we'll initialize this when the DOM loads(Document Object Model) 
+document.addEventListener('DOMContentLoaded',init); //DOMContentLoaded is the event we are listening for , if loaded then we init our app
+
+//init APP
+function init(){
+const txtElement = document.querySelector('txt-type');
+const words = txtElement.JSON.parse(getAttribute('data-words'//this is the use of the html attributes in js))
+but we need to parse this other wise it's just looked at as a string, hence the use of JSON.parse 
+const wait = txtElement.getAttribute(data-wait)
+
+//init TypeWritter
+new TypeWriter(txtElement,words,wait);
+}
+
+to add the cursor effect do this:
+.txt-type > .txt {
+border-right:0.2rem solid #777 }
